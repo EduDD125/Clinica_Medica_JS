@@ -1,0 +1,47 @@
+.DivMain{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    min-height: 100vh;
+    background-color: rgba(0, 0, 0, 0.46) ;
+}
+form{
+    background-color: white;
+}
+#forms{
+    width: 50%;
+    height: auto;
+    padding: 10px;
+    border: 2px solid black;
+    border-radius: 5px;
+}
+
+#fechar{
+    right: 15px;
+    top: 50px;
+    position: fixed;
+    border: 2px solid black;
+    background-color: rgb(255, 0, 0);
+    border-radius: 30px;
+    font-weight: bold;
+    color: white;
+}
+
+.containerCRUD{
+    padding: 50px;
+}
+
+.divConsultas{
+    background-color: white;
+    padding: 10px;
+    width: 50%;
+    height: auto;
+    padding: 10px;
+    border: 2px solid black;
+    border-radius: 5px;
+}

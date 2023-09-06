@@ -1,0 +1,1350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>clinicaMedica</title>
+    <link href="style.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
+</head>
+<body>
+    <div class="container menu">
+        <div class="row justify-content-sm-center">
+            <div class="col-1">
+                <a href="file:///C:/Users/olive/OneDrive/Área%20de%20Trabalho/IFSP/2023-1/WEB%20I/TrabalhoFinal/vini/Bootstrap%20clinica/index.html"><img class="img-fluid" 
+                    src="https://img.icons8.com/?size=512&id=44810&format=png" alt="Saúde" height="40" width="40"></a>
+            </div>
+            <div class="dropdown col-md-auto">
+                <button class="btn btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                Pacientes
+                </button>
+                <ul class="dropdown-menu">
+                    <li class="dropdown-item"><button id="listarPaciente" class="btn btn-info">Listar</button></li>
+                    <li class="dropdown-item"><button id="cadastrarPaciente" class="btn btn-info">Cadastrar</button></li>
+                </ul>
+            </div>
+            <div class="dropdown col-md-auto">
+                <button class="btn btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                Medicos
+                </button>
+                <ul class="dropdown-menu">
+                    <li class="dropdown-item"><button id="listarMedico" class="btn btn-info">Listar</button></li>
+                    <li class="dropdown-item"><button id="cadastrarMedico" class="btn btn-info">Cadastrar</button></li>
+                </ul>
+            </div>
+            <div class="col">
+                <button id="adicionarConsulta" class="btn btn-primary" type="button" aria-expanded="false">
+                    Consultas
+                </button>
+            </div>
+    </div>
+    </div>
+    <main>
+        <div class="containerCRUD"></div>
+    </main>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz" crossorigin="anonymous"></script>
+    <script>
+        // funções Lista
+        function criarTabelaPaciente(e){
+            let main = document.querySelector("main");
+            let containerCRUD = document.querySelector(".containerCRUD");
+            if(containerCRUD != null){
+                containerCRUD.remove();
+            }
+            fetch("https://ifsp.ddns.net/webservices/clinicaMedica/pacientes")
+                .then(listaPacientes => {
+                    if (!listaPacientes.ok) {
+                        throw new Error("Houve algum erro");
+                    }
+                    return listaPacientes.json();
+                })
+                .then(listaPacientes => {
+                    
+                    criarTabelaP(main)
+    
+                    // adicionando infos ao tBody 
+                    let tBody = document.querySelector("tbody");
+                    for( let paciente of listaPacientes) {
+                        let tr =  document.createElement("tr");
+                        // nome
+                        tdNome = document.createElement("td");
+                        tdNome.innerText = paciente.nome;
+                        tr.append(tdNome);
+    
+                        tr.setAttribute("dataId",paciente.id)
+                        // Data Nascimento
+                        tdNascimento = document.createElement("td");
+                        tdNascimento.innerText = paciente.dataNascimento;
+                        tr.append(tdNascimento);
+    
+                        // Data Cadastro
+                        tdCadastro = document.createElement("td");
+                        tdCadastro.innerText = paciente.dataCadastro;
+                        tr.append(tdCadastro);
+
+                        // Criar botões
+                        tdBotoes = document.createElement("td");
+                        BotVerConsultas = document.createElement("button");
+                        BotEditar= document.createElement("button");
+                        BotExcluir = document.createElement("button");
+                        BotVerConsultas.innerText = "Ver Consultas"
+                        BotEditar.innerText = "Editar"
+                        BotExcluir.innerText = "Excluir"
+                        BotVerConsultas.classList = "btn btn-info";
+                        BotEditar.classList = "btn btn-warning Editar";
+                        BotExcluir.classList = "btn btn-danger Remover";
+
+                        BotVerConsultas.addEventListener("click", verConsultas);
+                        BotEditar.addEventListener("click",editarPaciente);
+                        BotExcluir.addEventListener("click",removerPaciente);
+
+                        tdBotoes.append(BotVerConsultas);
+                        tdBotoes.append(BotEditar);
+                        tdBotoes.append(BotExcluir);
+                        tr.append(tdBotoes);
+                        // adicionar tr ao tbody
+                        tBody.append(tr);
+        
+                    }
+                })
+                .catch(erro => {
+                    console.error("Erro encontrado: ", erro);
+                });
+        }
+
+        function criarTabelaP(main) {
+            let containerCRUD = document.createElement("div");
+            let classDiv = containerCRUD.getAttribute("class");
+            containerCRUD.setAttribute("class", "containerCRUD")
+            let table = document.createElement("table")
+            let tHead = document.createElement("thead")
+            let tBody = document.createElement("tbody");
+            let tr =  document.createElement("tr");
+            let tdNome = document.createElement("td");
+            let tdDataNascimento = document.createElement("td");
+            let tdDataCadastro = document.createElement("td");
+            
+            table.classList = "table";
+            table.setAttribute("type", "paciente");
+            let titulo = document.createElement("h2");
+            // Criando titulo da tabela
+            titulo.innerText = "Pacientes"
+            containerCRUD.append(titulo);
+    
+            // criando legendas a nova tabela
+            tdNome.innerText = "Nome";
+            tHead.append(tdNome);
+    
+            tdDataNascimento.innerText = "Data de nascimento";
+            tHead.append(tdDataNascimento);
+    
+            tdDataCadastro.innerText = "Data de cadastro";
+            tHead.append(tdDataCadastro);
+    
+            table.append(tHead);
+            table.append(tBody);
+            containerCRUD.append(table);
+            main.append(containerCRUD);
+        }
+
+
+
+
+        function criarTabelaMedicos(e){
+            let main = document.querySelector("main");
+            let containerCRUD = document.querySelector(".containerCRUD");
+            if(containerCRUD != null){
+                containerCRUD.remove();
+            }
+            fetch("https://ifsp.ddns.net/webservices/clinicaMedica/medicos")
+                .then(listaMedicos => {
+                    if (!listaMedicos.ok) {
+                        throw new Error("Houve algum erro");
+                    }
+                    return listaMedicos.json();
+                })
+                .then(listaMedicos => {
+                    
+                    criarTabelaM(main)
+                    // adicionando infos ao tBody 
+                    let tBody = document.querySelector("tbody");
+                    for( let medico of listaMedicos) {
+                        let tr =  document.createElement("tr");
+                        // nome
+                        tdNome = document.createElement("td");
+                        tdNome.innerText = medico.nome;
+                        tr.append(tdNome);
+
+                        tr.setAttribute("dataId",medico.id)
+    
+                        // Data Cadastro
+                        tdDataCadastro = document.createElement("td");
+                        tdDataCadastro.innerText = medico.dataCadastro;
+                        tr.append(tdDataCadastro);
+    
+                        // Especialidade
+                        tdEspecialidade = document.createElement("td");
+                        Espcld = medico.idEspecialidade;
+                        verificarEsp(tdEspecialidade, Espcld, tr);
+    
+    
+                        // adicionar tr ao tbody
+                        tBody.append(tr);
+        
+                    }
+                })
+                .catch(erro => {
+                    console.error("Erro encontrado: ", erro);
+                });
+        }
+      
+        function criarTabelaM(main) {
+            let containerCRUD = document.createElement("div");
+            let classDiv = containerCRUD.getAttribute("class");
+            containerCRUD.setAttribute("class", "containerCRUD")
+            let table = document.createElement("table")
+            let tHead = document.createElement("thead")
+            let tBody = document.createElement("tbody");
+            let tr =  document.createElement("tr");
+            let tdNome = document.createElement("td");
+            let tdDataCadastro = document.createElement("td");
+            let tdEspecialidade = document.createElement("td");
+            
+            table.classList = "table";
+            table.setAttribute("type", "medico");
+            let titulo = document.createElement("h2");
+            // Criando titulo da tabela
+            titulo.innerText = "Medicos"
+            containerCRUD.append(titulo);
+    
+            // criando legendas a nova tabela
+            tdNome.innerText = "Nome";
+            tHead.append(tdNome);
+    
+            tdDataCadastro.innerText = "Data de cadastro";
+            tHead.append(tdDataCadastro);
+    
+            tdEspecialidade.innerText = "Especilidade";
+            tHead.append(tdEspecialidade);
+    
+            table.append(tHead);
+            table.append(tBody);
+            containerCRUD.append(table);
+            main.append(containerCRUD);
+        }
+    
+
+        function verificarEsp(tdEspecialidade, Espcld, tr){
+            fetch("https://ifsp.ddns.net/webservices/clinicaMedica/especialidades")
+                .then(listaEspecialidade => {
+                    if (!listaEspecialidade.ok) {
+                        throw new Error("Houve algum erro");
+                    }
+                    return listaEspecialidade.json();
+                })
+                .then(listaEspecialidade => {
+                    for( let especialidade of listaEspecialidade) {
+                        if (especialidade.id == Espcld){
+                            tdEspecialidade.innerText = especialidade.nome;
+                            tr.append(tdEspecialidade);
+                        }
+                    }
+                    // Criar botões
+                    tdBotoes = document.createElement("td");
+                        BotVerConsultas = document.createElement("button");
+                        BotEditar= document.createElement("button");
+                        BotExcluir = document.createElement("button");
+                        BotVerConsultas.innerText = "Ver Consultas"
+                        BotEditar.innerText = "Editar"
+                        BotExcluir.innerText = "Excluir"
+                        BotVerConsultas.classList = "btn btn-info";
+                        BotVerConsultas.addEventListener("click", verConsultas);
+                        BotEditar.classList = "btn btn-warning Editar";
+                        BotEditar.addEventListener("click",editarMedico);
+                        BotExcluir.classList = "btn btn-danger Remover";
+                        BotExcluir.addEventListener("click",removerMedico);
+                        tdBotoes.append(BotVerConsultas);
+                        tdBotoes.append(BotEditar);
+                        tdBotoes.append(BotExcluir);
+                        tr.append(tdBotoes);
+                })
+                .catch(erro => {
+                    console.error("Erro encontrado: ", erro);
+                });
+        }
+        
+        
+    // #################################################################
+    // #################################################################
+    
+    
+    
+        function cadastrarPaciente(e){
+            // selecionar main para localizar onde colocar tabelas
+            let main = document.querySelector("main");
+            // selecionar container para CRUD
+            let containerCRUD = document.querySelector(".containerCRUD");
+            if(containerCRUD != null){
+                containerCRUD.innerText ="";
+            }
+            let titulo =  document.createElement("h2");
+            let labelName =  document.createElement("label");
+            let div1 = document.createElement("div");
+            let div2 = document.createElement("div");
+            let div3 = document.createElement("div");
+            let forms = document.createElement("form");
+            let labelData =  document.createElement("label");
+            let buttonConfirm = document.createElement("button");
+            buttonConfirm.innerText = "Cadastrar";
+            buttonConfirm.id = "EnviarPaciente";
+            labelName.for = "Nome";
+            labelName.innerText = "Digite o nome do paciente:";
+            labelData.for = "Data";
+            labelData.innerText = "Digite a data de nascimento:"
+            let inputNome = document.createElement("input");
+            inputNome.type = "name";
+            inputNome.id = "NomePaciente";
+            let inputData = document.createElement("input");
+            inputData.max = dataAtual();
+            inputData.type = "date";
+            inputData.id = "DataPaciente";
+            inputData.required = true;
+            inputNome.required = true;
+            labelName.classList = "form-label"
+            labelData.classList = "form-label"
+            inputNome.classList = "form-control"
+            inputData.classList = "form-control"
+            div1.classList = "col-6";
+            div2.classList = "col-2";
+            div3.classList = "p-3";
+            titulo.innerText = "Cadastro de pacientes";
+            buttonConfirm.classList = "btn btn-success"
+            containerCRUD.append(titulo);
+            containerCRUD.append(forms);
+            forms.append(div1);
+            div1.append(labelName);
+            div1.append(inputNome);
+            forms.append(div2);
+            div2.append(labelData);
+            div2.append(inputData);
+            containerCRUD.append(div3);
+            div3.append(buttonConfirm);
+            let buttonEnviarPaciente = document.querySelector("#EnviarPaciente");
+            buttonEnviarPaciente.addEventListener("click", EnviarPaciente);
+            
+    }
+        
+        function EnviarPaciente(){
+            let nome = document.querySelector("#NomePaciente");
+            let data = document.querySelector("#DataPaciente");
+            nomePaciente=nome.value;
+            dataPaciente=data.value;
+            data1 = dataPaciente+" "+"00:00";
+            data3 = new Date(data1);
+            data2 = new Date();
+            if (nomePaciente!="" &&  dataPaciente!="" && data2>data3){
+                let dados = {
+                    nome: nomePaciente,
+                    dataNascimento: dataPaciente
+                    }
+                    let params = new URLSearchParams();
+                    for(let chave in dados) {
+                    params.append(chave,dados[chave]);
+                    }
+                    let query = params.toString();
+                    let options = {
+                    method: "POST",
+                    body: query,
+                    headers: {
+                        "Content-Type":"application/x-www-form-urlencoded"
+                    },
+                    }
+                    fetch("https://ifsp.ddns.net/webservices/clinicaMedica/pacientes", options)
+                    .then(()=>{
+                        let containerCRUD = document.querySelector(".containerCRUD");
+                        let divAlert = document.createElement("div");
+                        divAlert.classList = "alert alert-success position-fixed top-0 end-0";
+                        divAlert.innerText = "Paciente cadastrado!"
+                        containerCRUD.append(divAlert);
+                        setTimeout(excluirAlert,2000);
+                        nome.value = "";
+                        data.value = "";
+                });
+                }else{
+                    let containerCRUD = document.querySelector(".containerCRUD");
+                    let divAlert = document.createElement("div");
+                    divAlert.classList = "alert alert-danger position-fixed top-0 end-0";
+                    divAlert.innerText = "As informações não são validas!"
+                    containerCRUD.append(divAlert);
+                    setTimeout(excluirAlert,2000);
+                }
+        }
+
+        function excluirAlert(){
+            let divAlert = document.querySelector(".alert");
+            divAlert.remove();
+        }
+        
+        function cadastrarMedico(e){
+        
+        // selecionar container para CRUD
+        let containerCRUD = document.querySelector(".containerCRUD");
+        if (containerCRUD != null){
+            containerCRUD.innerText = "";
+        }
+        let titulo =  document.createElement("h2");
+        titulo.innerText = "Cadastro de medico";
+
+        let div1 = document.createElement("div");
+        let div2 = document.createElement("div");
+        let div3 = document.createElement("div");
+
+        let forms = document.createElement("form");
+
+        let labelName =  document.createElement("label");
+        labelName.for = "Nome";
+        labelName.innerText = "Digite o nome do medico:";
+
+        let labelEspecialidade =  document.createElement("label");
+        labelEspecialidade.for = "DEspecialidadeata";
+        labelEspecialidade.innerText = "Digite a especialidade do medico:"
+
+        let buttonConfirm = document.createElement("button");
+        buttonConfirm.innerText = "Cadastrar";
+        buttonConfirm.id = "EnviarMedico";
+        
+        let inputNome = document.createElement("input");
+        inputNome.type = "name";
+        inputNome.id = "NomeMedico";
+        inputNome.required = true;
+
+        let selectEspecialidade = document.createElement("select");
+        selectEspecialidade.type = "number";
+        selectEspecialidade.id = "idEspecialidade";
+        selectEspecialidade.required = true;
+
+        labelName.classList = "form-label"
+        labelEspecialidade.classList = "form-label"
+
+        inputNome.classList = "form-control"
+        selectEspecialidade.classList = "form-select editarEspecialidade"
+
+        div1.classList = "col-6";
+        div2.classList = "col-2";
+        div3.classList = "p-3"
+
+        buttonConfirm.classList = "btn btn-success"
+        
+        containerCRUD.append(titulo);
+        div1.append(labelName);
+        div1.append(inputNome);
+        div2.append(labelEspecialidade);
+        optionSelect(selectEspecialidade);
+        div2.append(selectEspecialidade);
+        forms.append(div1);
+        forms.append(div2);
+        containerCRUD.append(forms);
+        div3.append(buttonConfirm);
+        containerCRUD.append(div3);
+
+
+
+        let buttonEnviarPaciente = document.querySelector("#EnviarMedico");
+        buttonEnviarPaciente.addEventListener("click", EnviarMedico);
+        
+}
+
+        function EnviarMedico(){
+        let inputNome = document.querySelector("#NomeMedico");
+        let inputEspecialidade = document.querySelector("#idEspecialidade");
+        
+        let nomeMedico = inputNome.value;
+        let especialidadeMedico = inputEspecialidade.value;
+        
+        if(nomeMedico!="" && (especialidadeMedico == 1 || especialidadeMedico == 2|| especialidadeMedico == 3|| especialidadeMedico == 4|| especialidadeMedico == 5|| especialidadeMedico == 6|| especialidadeMedico == 7|| especialidadeMedico == 8)){
+            let dados = {
+            nome: nomeMedico,
+            idEspecialidade: especialidadeMedico
+            }
+            let params = new URLSearchParams();
+            for(let chave in dados) {
+            params.append(chave,dados[chave]);
+            }
+            let query = params.toString();
+            let options = {
+            method: "POST",
+            body: query,
+            headers: {
+                "Content-Type":"application/x-www-form-urlencoded"
+            },
+            }
+            fetch("https://ifsp.ddns.net/webservices/clinicaMedica/medicos", options)
+            .then(()=>{
+                        let containerCRUD = document.querySelector(".containerCRUD");
+                        let divAlert = document.createElement("div");
+                        divAlert.classList = "alert alert-success position-fixed top-0 end-0";
+                        divAlert.innerText = "Médico cadastrado!"
+                        containerCRUD.append(divAlert);
+                        setTimeout(excluirAlert,2000);
+                        inputNome.value = "";
+                        inputEspecialidade.value = "";
+                });
+        }
+        
+        else{
+                let containerCRUD = document.querySelector(".containerCRUD");
+                let divAlert = document.createElement("div");
+                divAlert.classList = "alert alert-danger position-fixed top-0 end-0";
+                divAlert.innerText = "As informações não são validas!"
+                containerCRUD.append(divAlert);
+                setTimeout(excluirAlert,2000);
+            };
+    }
+  
+
+    // #################################################################
+    // #################################################################
+    // #################################################################
+    // #################################################################
+    
+    
+    
+    
+    
+    // #################################################################
+    // #################################################################
+    
+    
+    
+      
+        
+        function removerPaciente(e){   
+            let botaoRemover = e.target;
+            let tr = botaoRemover.parentElement.parentElement;
+            let Id = tr.getAttribute("dataId");
+            let dados = {
+                id: Id
+            };
+            let params = new URLSearchParams();
+            for (let chave in dados) {
+                params.append(chave, dados[chave]);
+            }
+            let query = params.toString();
+            let options = {
+                method: "DELETE",
+                body: query,
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded"
+                },
+            };
+            fetch("https://ifsp.ddns.net/webservices/clinicaMedica/pacientes/" + Id, options)
+            .then(()=>{
+                        let containerCRUD = document.querySelector(".containerCRUD");
+                        let divAlert = document.createElement("div");
+                        divAlert.classList = "alert alert-danger position-fixed top-0 end-0";
+                        divAlert.innerText = "Paciente removido!"
+                        containerCRUD.append(divAlert);
+                        setTimeout(excluirAlert,2000);
+                        tr.remove();
+                });
+            
+        }
+    
+        function removerMedico(e){
+            let botaoRemover = e.target;
+            let tr = botaoRemover.parentElement.parentElement;
+            let Id = tr.getAttribute("dataId");
+            let dados = {
+                id: Id
+            };
+            let params = new URLSearchParams();
+            for (let chave in dados) {
+                params.append(chave, dados[chave]);
+            }
+            let query = params.toString();
+            let options = {
+                method: "DELETE",
+                body: query,
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded"
+                },
+            };
+            fetch("https://ifsp.ddns.net/webservices/clinicaMedica/medicos/" + Id, options)
+            .then(()=>{
+                        let containerCRUD = document.querySelector(".containerCRUD");
+                        let divAlert = document.createElement("div");
+                        divAlert.classList = "alert alert-danger position-fixed top-0 end-0";
+                        divAlert.innerText = "Médico removido!"
+                        containerCRUD.append(divAlert);
+                        setTimeout(excluirAlert,2000);
+                        tr.remove();
+                });
+            
+        }
+    
+  
+        
+        function editarPaciente(e){
+            let containerCRUD = document.querySelector(".containerCRUD");
+            let botaoRemover = e.target;
+            let tr = botaoRemover.parentElement.parentElement;
+            let Id = tr.getAttribute("dataId");
+            FormEditarP(Id);
+        
+        }
+        function AlterarInfoP(){
+        Titulo = document.querySelector("#TituloAlterar");
+        Id = Titulo.getAttribute("data-id");
+        Nome = document.querySelector(".editarNome");
+        Data = document.querySelector(".editarData");
+        novoNome = Nome.value;
+        novaData = Data.value;
+        if (novoNome!="" && novaData!=""){
+            let dados = {
+            nome: novoNome,
+            dataNascimento: novaData
+            };
+            let params = new URLSearchParams();
+            for (let chave in dados) {
+                params.append(chave, dados[chave]);
+            }
+            let query = params.toString();
+            let options = {
+                method: "PUT",
+                body: query,
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded"
+                },
+            };
+            fetch("https://ifsp.ddns.net/webservices/clinicaMedica/pacientes/" + Id, options)
+            .then(()=>{
+                Fechar();
+                let containerCRUD = document.querySelector(".containerCRUD");
+                let main= document.querySelector("main");
+                if (containerCRUD != null){
+                containerCRUD.innerText = "";
+                }
+                let divAlert = document.createElement("div");
+                divAlert.classList = "alert alert-warning position-fixed top-0 end-0";
+                divAlert.innerText = "Paciente Alterado!";
+                criarTabelaPaciente();
+                main.append(divAlert);
+                setTimeout(excluirAlert,2000);
+            });
+        
+        }
+        else{
+            let containerCRUD = document.querySelector(".containerCRUD");
+            let divAlert = document.createElement("div");
+            divAlert.classList = "alert alert-danger position-fixed top-0 end-0";
+            divAlert.innerText = "As informações não são validas!"
+            containerCRUD.append(divAlert);
+            setTimeout(excluirAlert,2000);
+        }
+    }
+        function FormEditarP(Id){
+                let Body = document.querySelector("body")
+                let divMain = document.createElement("div");
+                let titulo =  document.createElement("h2");
+                let labelName =  document.createElement("label");
+                let div1 = document.createElement("div");
+                let div2 = document.createElement("div");
+                let div3 = document.createElement("div");
+                let forms = document.createElement("form");
+                let labelData =  document.createElement("label");
+                let buttonFechar = document.createElement("button");
+                let buttonConfirm = document.createElement("button");
+                Body.append(divMain);
+                buttonFechar.innerText = "X";
+                buttonFechar.id = "fechar";
+                divMain.classList="DivMain";
+                buttonConfirm.innerText = "Alterar";
+                titulo.id="TituloAlterar"
+                titulo.setAttribute("data-id",Id);
+                labelName.for = "Nome";
+                labelName.innerText = "Digite o seu nome:";
+                labelData.for = "Data";
+                labelData.innerText = "Digite a sua data de nascimento:"
+                let inputNome = document.createElement("input");
+                inputNome.type = "name";
+                inputNome.id = "NomePaciente";
+                let inputData = document.createElement("input");
+                inputData.max = dataAtual();
+                inputData.type = "date";
+                inputData.id = "DataPaciente";
+                inputData.required = true;
+                inputNome.required = true;
+                labelName.classList = "form-label"
+                labelData.classList = "form-label"
+                inputNome.classList = "form-control editarNome"
+                inputData.classList = "form-control editarData"
+                div1.classList = "col-12";
+                div2.classList = "col-12";
+                div3.classList = "p-3";
+                forms.id = "forms";
+                titulo.innerText = "Editar dados";
+                buttonConfirm.classList = "btn btn-success"
+                divMain.append(forms);
+                forms.append(titulo);
+                forms.append(div1);
+                div1.append(labelName);
+                div1.append(inputNome);
+                forms.append(div2);
+                div2.append(labelData);
+                div2.append(inputData);
+                forms.append(div3);
+                div3.append(buttonConfirm);
+                divMain.append(buttonFechar);
+                
+                buttonConfirm.addEventListener("click", (event) => {
+                    event.preventDefault();
+                    AlterarInfoP();
+                });
+                buttonFechar.addEventListener("click", Fechar)
+                
+        }
+        
+
+        function FormEditarM(Id){
+                let Body = document.querySelector("body")
+                let divMain = document.createElement("div");
+                let titulo =  document.createElement("h2");
+                let labelName =  document.createElement("label");
+                let div1 = document.createElement("div");
+                let div2 = document.createElement("div");
+                let div3 = document.createElement("div");
+                let forms = document.createElement("form");
+                let labelEspecialidade=  document.createElement("label");
+                let buttonFechar = document.createElement("button");
+                let buttonConfirm = document.createElement("button");
+                Body.append(divMain);
+                buttonFechar.innerText = "X";
+                buttonFechar.id = "fechar";
+                divMain.classList="DivMain";
+                buttonConfirm.innerText = "Alterar";
+                titulo.id="TituloAlterar"
+                titulo.setAttribute("data-id",Id);
+                labelName.for = "Nome";
+                labelName.innerText = "Digite o seu nome:";
+                labelEspecialidade.for = "Especialidade";
+                labelEspecialidade.innerText = "Digite a sua especialidade:"
+                let inputNome = document.createElement("input");
+                inputNome.type = "name";
+                inputNome.id = "NomePaciente";
+                let selectEspecialidade = document.createElement("select");
+                selectEspecialidade.type = "number";
+                selectEspecialidade.id = "Especialidade";
+                selectEspecialidade.required = true;
+                inputNome.required = true;
+                labelName.classList = "form-label"
+                labelEspecialidade.classList = "form-label"
+                inputNome.classList = "form-control editarNome"
+                selectEspecialidade.classList = "form-select editarEspecialidade"
+                div1.classList = "col-12";
+                div2.classList = "col-12";
+                div3.classList = "p-3";
+                forms.id = "forms";
+                titulo.innerText = "Editar dados";
+                buttonConfirm.classList = "btn btn-success"
+                divMain.append(forms);
+                forms.append(titulo);
+                forms.append(div1);
+                div1.append(labelName);
+                div1.append(inputNome);
+                forms.append(div2);
+                div2.append(labelEspecialidade);
+                optionSelect(selectEspecialidade);
+                div2.append(selectEspecialidade);
+                forms.append(div3);
+                div3.append(buttonConfirm);
+                divMain.append(buttonFechar);
+                
+                buttonConfirm.addEventListener("click", (event) => {
+                    event.preventDefault();
+                    AlterarInfoM();
+                });
+                buttonFechar.addEventListener("click", Fechar)
+                
+        }
+        function editarMedico(e){
+            let containerCRUD = document.querySelector(".containerCRUD");
+            let botaoRemover = e.target;
+            let tr = botaoRemover.parentElement.parentElement;
+            let Id = tr.getAttribute("dataId");
+            FormEditarM(Id);
+        
+        }
+        function AlterarInfoM(){
+        Titulo = document.querySelector("#TituloAlterar");
+        Id = Titulo.getAttribute("data-id");
+        Nome = document.querySelector(".editarNome");
+        Especialidade = document.querySelector(".editarEspecialidade");
+        novoNome = Nome.value;
+        novaEspecialidade = Especialidade.value;
+        if (novoNome!="" && novaEspecialidade!=""){
+            let dados = {
+            nome: novoNome,
+            idEspecialidade: novaEspecialidade
+            };
+            let params = new URLSearchParams();
+            for (let chave in dados) {
+                params.append(chave, dados[chave]);
+            }
+            let query = params.toString();
+            let options = {
+                method: "PUT",
+                body: query,
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded"
+                },
+            };
+            fetch("https://ifsp.ddns.net/webservices/clinicaMedica/medicos/" + Id, options)
+            .then(()=>{
+                Fechar();
+                let containerCRUD = document.querySelector(".containerCRUD");
+                let main= document.querySelector("main");
+                if (containerCRUD != null){
+                containerCRUD.innerText = "";
+                }
+                let divAlert = document.createElement("div");
+                divAlert.classList = "alert alert-warning position-fixed top-0 end-0";
+                divAlert.innerText = "Médico Alterado!";
+                criarTabelaMedicos();
+                main.append(divAlert);
+                setTimeout(excluirAlert,2000);
+            });
+
+        }
+        else{
+            let containerCRUD = document.querySelector(".containerCRUD");
+            let divAlert = document.createElement("div");
+            divAlert.classList = "alert alert-danger position-fixed top-0 end-0";
+            divAlert.innerText = "As informações não são validas!"
+            containerCRUD.append(divAlert);
+            setTimeout(excluirAlert,2000);
+        }
+        
+    }
+
+    
+
+    function Fechar(){
+            let DivMain = document.querySelector(".DivMain");
+            DivMain.remove();
+        }
+    function optionSelect(selectEspecialidade){
+            fetch("https://ifsp.ddns.net/webservices/clinicaMedica/especialidades")
+                    .then(listaEspecialidade => {
+                        if (!listaEspecialidade.ok) {
+                            throw new Error("Houve algum erro");
+                        }
+                        return listaEspecialidade.json();
+                    })
+                    .then(listaEspecialidade => {
+                        for( let especialidade of listaEspecialidade) {
+                            option = document.createElement("option");
+                            option.value = especialidade.id;
+                            option.innerText = especialidade.nome;
+                            selectEspecialidade.append(option);
+                        }
+                    })
+                    .catch(erro => {
+                        console.error("Erro encontrado: ", erro);
+                    });
+        }
+
+    function verConsultas(e){
+        button = e.target;
+        tr = button.parentElement.parentElement;
+        id = tr.getAttribute("dataid");
+        nome = tr.firstElementChild.textContent;
+        CardConsultas(id,nome);
+    }
+    function CardConsultas(id,nome){
+        let Body = document.querySelector("body")
+        let divMain = document.createElement("div");
+        divMain.classList="DivMain";
+
+        let divConsultas = document.createElement("div");
+        divConsultas.classList = "divConsultas";
+
+        let titulo =  document.createElement("h2");
+        titulo.innerText = "Consultas";
+        titulo.id="TituloConsulta";
+        titulo.setAttribute("data-id",id);
+        titulo.setAttribute("nome",nome);
+        
+
+        let table =  document.createElement("table");
+        table.id = "tabelaConsultas";
+        let buttonFechar = document.createElement("button");
+        buttonFechar.innerText = "X";
+        buttonFechar.id = "fechar";
+        buttonFechar.addEventListener("click", Fechar)
+        
+        
+    
+
+        divConsultas.append(titulo);
+        divConsultas.append(table);
+        divConsultas.append(buttonFechar);
+
+        divMain.append(divConsultas);
+        Body.append(divMain);
+
+        criarTabelaConsultas();
+    }    
+    function criarTabelaConsultas(){
+        let titulo = document.querySelector("#TituloConsulta");
+        let id = titulo.getAttribute("data-id");
+        let nome = titulo.getAttribute("nome");
+        let type = document.querySelector(".table").getAttribute("type");
+        
+        if (type == "paciente"){
+        criarListaConsultasPaciente(id,nome);
+        } else {
+        criarListaConsultasMedico(id,nome);
+        }
+    }
+    
+    
+    async function criarListaConsultasPaciente(id, nome) {
+        try {
+            const listaConsultas = await fetch("https://ifsp.ddns.net/webservices/clinicaMedica/consultas");
+            if (!listaConsultas.ok) {
+            throw new Error("Houve algum erro");
+            }
+            const listaConsultasJson = await listaConsultas.json();
+
+            
+            let tBody = document.createElement("tbody");
+            let table = document.querySelector("#tabelaConsultas");
+            let tHead = document.createElement("thead");
+            let tr = document.createElement("tr");
+            let tdNomeMed = document.createElement("td");
+            let tdNomePaciT = document.createElement("td");
+            let tdData = document.createElement("td");
+            let tdButton = document.createElement("td");
+            table.classList = "table";
+            tdNomePaciT.innerText = "Paciente";
+            tr.append(tdNomePaciT);
+            tdNomeMed.innerText = "Médico";
+            tr.append(tdNomeMed);
+            tdData.innerText = "Data";
+            tr.append(tdData);
+            tdButton.innerText = "Cancelar";
+            tr.append(tdButton);
+            tHead.append(tr);
+            table.append(tHead);
+
+            for (let consultas of listaConsultasJson) {
+                if (id == consultas.idPaciente) {
+                    let tr = document.createElement("tr");
+                    tr.setAttribute("data-id", consultas.id);
+
+
+                    let tdNomePaci = document.createElement("td");
+                    tdNomePaci.innerText = nome;
+                    tr.append(tdNomePaci);
+
+
+                    
+                    await trocarIdsPorNomesMedico(tr, consultas);
+                    
+
+                    let tdData = document.createElement("td");
+                    tdData.innerText = consultas.data;
+
+                    let buttonCancel = document.createElement("button");
+                    buttonCancel.innerText = "Cancelar";
+                    buttonCancel.classList = "btn btn-danger";
+                    buttonCancel.id = "cancel";
+
+                    tr.append(tdData);
+                    tr.append(buttonCancel);
+
+                    table.append(tr);
+
+                    buttonCancel.addEventListener("click", cancelarConsulta);
+                }
+
+            }
+        } catch (erro) {
+            console.error("Erro encontrado: ", erro);
+        }
+    }
+    async function criarListaConsultasMedico(id, nome) {
+        try {
+            const listaConsultas = await fetch("https://ifsp.ddns.net/webservices/clinicaMedica/consultas");
+            if (!listaConsultas.ok) {
+            throw new Error("Houve algum erro");
+            }
+            const listaConsultasJson = await listaConsultas.json();
+
+            
+            let tBody = document.createElement("tbody");
+            let table = document.querySelector("#tabelaConsultas");
+            let tHead = document.createElement("thead");
+            let tr = document.createElement("tr");
+            let tdNomeMed = document.createElement("td");
+            let tdNomePaciT = document.createElement("td");
+            let tdData = document.createElement("td");
+            let tdButton = document.createElement("td");
+            table.classList = "table";
+            tdNomePaciT.innerText = "Paciente";
+            tr.append(tdNomePaciT);
+            tdNomeMed.innerText = "Médico";
+            tr.append(tdNomeMed);
+            tdData.innerText = "Data";
+            tr.append(tdData);
+            tdButton.innerText = "Cancelar";
+            tr.append(tdButton);
+            tHead.append(tr);
+            table.append(tHead);
+
+            for (let consultas of listaConsultasJson) {
+                if (id == consultas.idMedico) {
+                    let tr = document.createElement("tr");
+                    tr.setAttribute("data-id", consultas.id);
+
+
+                    let tdNomePaci = document.createElement("td");
+                    tdNomePaci.innerText = nome;
+                    tr.append(tdNomePaci);
+
+
+                    
+                    await trocarIdsPorNomesPaciente(tr, consultas);
+                    
+
+                    let tdData = document.createElement("td");
+                    tdData.innerText = consultas.data;
+
+                    let buttonCancel = document.createElement("button");
+                    buttonCancel.innerText = "Cancelar";
+                    buttonCancel.classList = "btn btn-danger";
+                    buttonCancel.id = "cancel";
+
+                    tr.append(tdData);
+                    tr.append(buttonCancel);
+
+                    table.append(tr);
+
+                    buttonCancel.addEventListener("click", cancelarConsulta);
+                }
+
+            }
+        } catch (erro) {
+            console.error("Erro encontrado: ", erro);
+        }
+    }
+
+
+
+
+    
+    
+    async function trocarIdsPorNomesMedico(tr, consultas) {
+        try {
+            let IdMedico = consultas.idMedico;
+            const listaMedicos = await fetch("https://ifsp.ddns.net/webservices/clinicaMedica/medicos");
+            if (!listaMedicos.ok) {
+            throw new Error("Houve algum erro");
+            }
+            const listaMedicosJson = await listaMedicos.json();
+
+            for (let medico of listaMedicosJson) {
+            if (medico.id == IdMedico) {
+                let tdNomeMedico = document.createElement("td");
+                tdNomeMedico.innerText = medico.nome;
+                tr.append(tdNomeMedico);
+            }
+            }
+        } catch (erro) {
+            console.error("Erro encontrado: ", erro);
+        }
+    }
+    async function trocarIdsPorNomesPaciente(tr, consultas) {
+        try {
+            let IdPaciente = consultas.idPaciente;
+            const listaPacientes = await fetch("https://ifsp.ddns.net/webservices/clinicaMedica/pacientes");
+            if (!listaPacientes.ok) {
+            throw new Error("Houve algum erro");
+            }
+            const listaPacientesJson = await listaPacientes.json();
+
+            for (let paciente of listaPacientesJson) {
+            if (paciente.id == IdPaciente) {
+                let tdNomePaciente = document.createElement("td");
+                tdNomePaciente.innerText = paciente.nome;
+                tr.append(tdNomePaciente);
+            }
+            }
+        } catch (erro) {
+            console.error("Erro encontrado: ", erro);
+        }
+        }
+
+
+
+    function cancelarConsulta(e) {
+        let botaoCancelar = e.target;
+        let tr = botaoCancelar.parentElement;
+        Id = tr.getAttribute("data-id")
+;
+        let dados = {
+            id: Id
+        };
+        let params = new URLSearchParams();
+        for (let chave in dados) {
+            params.append(chave, dados[chave]);
+        }
+        let query = params.toString();
+        let options = {
+            method: "DELETE",
+            body: query,
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded"
+            },
+        };
+        fetch("https://ifsp.ddns.net/webservices/clinicaMedica/consultas/" + Id, options)
+        .then(()=>{
+            let containerCRUD = document.querySelector(".containerCRUD");
+            let divAlert = document.createElement("div");
+            divAlert.classList = "alert alert-danger position-fixed top-0 end-0";
+            divAlert.innerText = "Consulta cancelada!"
+            containerCRUD.append(divAlert);
+            setTimeout(excluirAlert,2000);
+            tr.remove();
+        });
+    }
+
+
+
+    // #################################################################
+    // #################################################################
+    // #################################################################
+    // #################################################################
+    
+    
+        function dataAtual(){
+            dataHoje = new Date();
+            dia = String(dataHoje.getDate()).padStart(2,"0");
+            mes = String(dataHoje.getMonth()+1).padStart(2,"0");
+            ano = dataHoje.getFullYear();
+            data = ano+"-"+mes+"-"+dia;
+            return data;
+        }
+    
+
+
+        
+    
+    
+        // função consulta
+        function adicionarConsulta(e){
+            let containerCRUD = document.querySelector(".containerCRUD");
+            if (containerCRUD != null){
+                containerCRUD.innerText = "";
+            }
+            let h2 = document.createElement("h2");
+            let forms = document.createElement("form");
+            let labelPaciente =  document.createElement("label");
+            let labelMedico =  document.createElement("label");
+            let selectPaciente = document.createElement("select");
+            let selectMedico = document.createElement("select");
+            let inputData = document.createElement("input");
+            let labelData =  document.createElement("label");
+            let inputHora = document.createElement("input");
+            let labelHora = document.createElement("label");
+            let buttonConfirm = document.createElement("button");
+
+            h2.innerText = "Cadastrar consultas";
+            labelData.for = "Data";
+            labelData.innerText = "Digite a data da consulta: "
+            labelData.classList = "form-label";
+            inputData.min = dataAtual();
+            inputData.type = "date";
+            inputData.id = "DataConsulta";
+            inputData.required = true;
+            inputData.classList = "form-control"
+            
+            labelHora.innerText = "Digite o horário da consulta: "
+            labelHora.classList = "form-label";
+            inputHora.min = dataAtual();
+            inputHora.type = "time";
+            inputHora.id = "horaConsulta";
+            inputHora.required = true;
+            inputHora.classList = "form-control"
+
+            buttonConfirm.innerText = "Adicionar";
+            buttonConfirm.classList = "btn btn-success"
+
+            selectPaciente.name = "paciente";
+            selectPaciente.id = "SlctPaciente";
+            selectPaciente.required = true;
+            selectMedico.name = "medico";
+            selectMedico.id = "SlctMedico";
+            selectMedico.required = true;
+            labelPaciente.for = "paciente";
+            labelPaciente.innerText = "Selecione o paciente: ";
+            labelMedico.for = "medico";
+            labelMedico.innerText = "Selecione o medico: ";
+            labelPaciente.classList = "form-label";
+            labelMedico.classList = "form-label";
+            selectPaciente.classList ="form-select";
+            selectMedico.classList ="form-select";
+
+            forms.classList = "col-4"
+
+            containerCRUD.append(h2);
+            containerCRUD.append(forms);
+            forms.append(labelPaciente);
+            forms.append(selectPaciente);
+            selecaoPaciente(selectPaciente);
+            forms.append(labelMedico);
+            forms.append(selectMedico);
+            selecaoMedicos(selectMedico);
+            forms.append(labelData);
+            forms.append(inputData);
+            forms.append(labelHora);
+            forms.append(inputHora);
+            forms.append(buttonConfirm);
+            buttonConfirm.addEventListener("click", (event) => {
+                event.preventDefault();
+                EnviarConsulta();
+            });
+            
+        }
+        function selecaoPaciente(selectPaciente){
+            fetch("https://ifsp.ddns.net/webservices/clinicaMedica/pacientes")
+                .then(listaPacientes => {
+                    if (!listaPacientes.ok) {
+                        throw new Error("Houve algum erro");
+                    }
+                    return listaPacientes.json();
+                })
+                .then(listaPacientes => {
+                    for( let paciente of listaPacientes) {
+                        option = document.createElement("option");
+                        option.value = paciente.id;
+                        option.innerText = paciente.nome;
+                        selectPaciente.append(option);
+                    }
+                })
+                .catch(erro => {
+                    console.error("Erro encontrado: ", erro);
+                });
+        }
+
+        function selecaoMedicos(selectMedico){
+            fetch("https://ifsp.ddns.net/webservices/clinicaMedica/medicos")
+                .then(listaMedicos => {
+                    if (!listaMedicos.ok) {
+                        throw new Error("Houve algum erro");
+                    }
+                    return listaMedicos.json();
+                })
+                .then(listaMedicos => {
+                    for( let medico of listaMedicos) {
+                        option = document.createElement("option");
+                        option.value = medico.id;
+                        option.innerText = medico.nome;
+                        selectMedico.append(option);
+                    }
+                })
+                .catch(erro => {
+                    console.error("Erro encontrado: ", erro);
+                });
+        }
+        
+        function EnviarConsulta(){
+            horario = document.querySelector("#horaConsulta").value;
+            dataC = document.querySelector("#DataConsulta").value;
+            data1 = dataC+" "+horario+":00";
+            data3 = new Date(data1);
+            data2 = new Date();
+            if(data3<data2){
+                let containerCRUD = document.querySelector(".containerCRUD");
+                let divAlert = document.createElement("div");
+                divAlert.classList = "alert alert-danger position-fixed top-0 end-0";
+                divAlert.innerText = "A data digitada não é valida"
+                containerCRUD.append(divAlert);
+                setTimeout(excluirAlert,2000);
+            }
+            else{
+                let paciente = document.querySelector("#SlctPaciente");
+                let idPaciente = paciente.value;
+                let medico = document.querySelector("#SlctMedico");
+                let idMedico = medico.value;
+                if (horario!="" && dataC!="" && idPaciente!=0 && idPaciente!=0){
+                    let dados = {
+                    idPaciente : idPaciente,
+                    idMedico : idMedico,
+                    data : data1
+                };
+                let params = new URLSearchParams();
+                for (let chave in dados) {
+                    params.append(chave, dados[chave]);
+                }
+                let query = params.toString();
+                let options = {
+                    method: "POST",
+                    body: query,
+                    headers: {
+                        "Content-Type": "application/x-www-form-urlencoded"
+                    },
+                };
+                fetch("https://ifsp.ddns.net/webservices/clinicaMedica/consultas", options)
+                .then(()=>{
+                        let containerCRUD = document.querySelector(".containerCRUD");
+                        let divAlert = document.createElement("div");
+                        divAlert.classList = "alert alert-success position-fixed top-0 end-0";
+                        divAlert.innerText = "Consulta cadastrada!"
+                        containerCRUD.append(divAlert);
+                        setTimeout(excluirAlert,2000);
+                        paciente.value = "";
+                        medico.value = "";
+                        dataC.value = "";
+                        horario.value = "";
+                });
+                }
+                else{
+                    let containerCRUD = document.querySelector(".containerCRUD");
+                    let divAlert = document.createElement("div");
+                    divAlert.classList = "alert alert-danger position-fixed top-0 end-0";
+                    divAlert.innerText = "As informações não são validas!"
+                    containerCRUD.append(divAlert);
+                    setTimeout(excluirAlert,2000);
+                }
+                
+            }
+        }
+    
+        let buttonListarPaciente = document.querySelector("#listarPaciente");
+        buttonListarPaciente.addEventListener("click", criarTabelaPaciente);
+    
+    
+        let buttonCadastrarPaciente = document.querySelector("#cadastrarPaciente");
+        buttonCadastrarPaciente.addEventListener("click", cadastrarPaciente);
+    
+    
+        let buttonListarMedico = document.querySelector("#listarMedico");
+        buttonListarMedico.addEventListener("click", criarTabelaMedicos);
+    
+    
+        let buttonCadastrarMedico = document.querySelector("#cadastrarMedico");
+        buttonCadastrarMedico.addEventListener("click",cadastrarMedico);
+    
+    
+        let buttonAdicionarConsulta = document.querySelector("#adicionarConsulta");
+        buttonAdicionarConsulta.addEventListener("click", adicionarConsulta);
+
+        let botaoRemover = document.querySelectorAll(".Remover");
+            for (let botaoR of botaoRemover){
+                botaoR.addEventListener("click",removerPaciente);
+                }
+    </script>
+</body>
+</html>
